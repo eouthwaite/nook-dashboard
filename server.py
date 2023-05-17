@@ -33,7 +33,7 @@ headers = {
     "Authorization": "Bearer " + HA_ACCESS_TOKEN
 }
 
-CALENDAR = config["home_assistant"]["calendar"]
+CALENDARS = config["home_assistant"]["calendar"]
 
 define("port", default=8888, help="run on the given port", type=int)
         
@@ -120,23 +120,27 @@ class Dashboard(tornado.web.RequestHandler):
         ##############################
         #  TODAYS EVENTS (FROM CALENDAR)
         ##############################
-        print("GET Calendar")
+        print("GET Calendars")
 
         # Get calendar
+        calendar = {}
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         yesterday = (datetime.date.today() - timedelta(days = 1)).strftime("%Y-%m-%d")
         start = today + "T00:00:00.000Z"
         end = today + "T23:59:59.999Z"
 
-        request = HA_API + "/calendars/" + CALENDAR + "?start=" + start + "&end=" + end
-        print("Headers: " + str(headers))
-        print("Request: " + request)
+        for cal in CALENDARS.split(','):
+            print("GET " + cal + " Calendar")
+            request = HA_API + "/calendars/" + cal + "?start=" + start + "&end=" + end
+            print("Headers: " + str(headers))
+            print("Request: " + request)
 
-        response = requests.get(request, headers=headers, verify=False)
-        print(response.status_code)
-        calendar = response.json()  
+            response = requests.get(request, headers=headers, verify=False)
+            print(response.status_code)
+            tempcal = response.json()  
 
-        print(calendar)
+            print(tempcal)
+            calendar.append(tempcal)
 
         # ##############################
         # #  WEATHER
