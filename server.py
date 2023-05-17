@@ -79,32 +79,32 @@ class ToDo(tornado.web.RequestHandler):
 
 class Dashboard(tornado.web.RequestHandler):
 
-    # Return the high, and low temperatures from a list of temps
-    def get_high_low(self, temps):
-        return [max(temps), min(temps)]
+    # # Return the high, and low temperatures from a list of temps
+    # def get_high_low(self, temps):
+    #     return [max(temps), min(temps)]
 
-    def get_weather_icon(self, condition):
+    # def get_weather_icon(self, condition):
 
-        # The path is relative to the static_url
-        icon_path = {
-            "clear-night": "img/icons/weather-night.png",
-            "cloudy": "img/icons/weather-cloudy.png",
-            "fog": "img/icons/weather-fog.png",
-            "hail": "img/icons/weather-hail.png",
-            "lightning": "img/icons/weather-lightning.png",
-            "lightning-rainy": "img/icons/weather-lightning-rainy.png",
-            "partlycloudy": "img/icons/weather-partly-cloudy.png",
-            "pouring": "img/icons/weather-pouring.png",
-            "rainy": "img/icons/weather-rainy.png",
-            "snowy": "img/icons/weather-snowy.pngclear",
-            "snowy-rainy": "img/icons/weather-snowy-rainy.png",
-            "sunny": "img/icons/weather-sunny.png",
-            "windy": "img/icons/weather-windy.png",
-            "windy-variant": "img/icons/weather-windy-variant.png",
-            "exceptional": "img/icons/weather-sunny-alert.png"
-        }
+    #     # The path is relative to the static_url
+    #     icon_path = {
+    #         "clear-night": "img/icons/weather-night.png",
+    #         "cloudy": "img/icons/weather-cloudy.png",
+    #         "fog": "img/icons/weather-fog.png",
+    #         "hail": "img/icons/weather-hail.png",
+    #         "lightning": "img/icons/weather-lightning.png",
+    #         "lightning-rainy": "img/icons/weather-lightning-rainy.png",
+    #         "partlycloudy": "img/icons/weather-partly-cloudy.png",
+    #         "pouring": "img/icons/weather-pouring.png",
+    #         "rainy": "img/icons/weather-rainy.png",
+    #         "snowy": "img/icons/weather-snowy.pngclear",
+    #         "snowy-rainy": "img/icons/weather-snowy-rainy.png",
+    #         "sunny": "img/icons/weather-sunny.png",
+    #         "windy": "img/icons/weather-windy.png",
+    #         "windy-variant": "img/icons/weather-windy-variant.png",
+    #         "exceptional": "img/icons/weather-sunny-alert.png"
+    #     }
 
-        return icon_path[condition]
+    #     return icon_path[condition]
 
     def get(self):
 
@@ -129,70 +129,70 @@ class Dashboard(tornado.web.RequestHandler):
         response = requests.get(HA_API + "/calendars/" + CALENDAR + "?start="+start+"&end="+end, headers=headers, verify=False)
         calendar = response.json()  
 
-        ##############################
-        #  WEATHER
-        ##############################
+        # ##############################
+        # #  WEATHER
+        # ##############################
 
-        # Get weather                
-        response = requests.get(HA_API + "/states/weather.openweathermap", headers=headers, verify=False)
-        weather = response.json()["attributes"]    
-        weather_state = response.json()["state"]
-        weather_icon = self.get_weather_icon(weather_state)
+        # # Get weather                
+        # response = requests.get(HA_API + "/states/weather.openweathermap", headers=headers, verify=False)
+        # weather = response.json()["attributes"]    
+        # weather_state = response.json()["state"]
+        # weather_icon = self.get_weather_icon(weather_state)
 
-        # Build 5 day forecast of high/lows
-        forecast = weather["forecast"]
+        # # Build 5 day forecast of high/lows
+        # forecast = weather["forecast"]
 
-        five_day = {}
-        prev_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        prev_day = datetime.datetime.now().strftime("%a")
-        temps = []
-        index = 0
+        # five_day = {}
+        # prev_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        # prev_day = datetime.datetime.now().strftime("%a")
+        # temps = []
+        # index = 0
 
-        for f in forecast:
+        # for f in forecast:
 
-            # Get current date
-            today = datetime.datetime.now().strftime("%Y-%m-%d")
+        #     # Get current date
+        #     today = datetime.datetime.now().strftime("%Y-%m-%d")
 
-            # Get forecast datetime
-            dt = datetime.datetime.strptime(f["datetime"], '%Y-%m-%dT%H:%M:%S%z').astimezone(timezone("America/New_York"))
-            forecast_date = dt.strftime("%Y-%m-%d")
-            forecast_day = dt.strftime("%a")
+        #     # Get forecast datetime
+        #     dt = datetime.datetime.strptime(f["datetime"], '%Y-%m-%dT%H:%M:%S%z').astimezone(timezone("America/New_York"))
+        #     forecast_date = dt.strftime("%Y-%m-%d")
+        #     forecast_day = dt.strftime("%a")
 
-            # If new day, reset temps
-            if forecast_date != prev_date:
-                if len(temps) > 0:
-                    high_low = self.get_high_low(temps)
-                    five_day.update({index: {"dow": prev_day, "high": high_low[0], "low": high_low[1]}})
-                    index += 1
-                temps = []            
+        #     # If new day, reset temps
+        #     if forecast_date != prev_date:
+        #         if len(temps) > 0:
+        #             high_low = self.get_high_low(temps)
+        #             five_day.update({index: {"dow": prev_day, "high": high_low[0], "low": high_low[1]}})
+        #             index += 1
+        #         temps = []            
 
-            # If not today, add temperature to temps list
-            # if forecast_date != today:
-            temps.append(f["temperature"])
+        #     # If not today, add temperature to temps list
+        #     # if forecast_date != today:
+        #     temps.append(f["temperature"])
 
-            prev_date = forecast_date
-            prev_day = forecast_day
+        #     prev_date = forecast_date
+        #     prev_day = forecast_day
 
-        # Handle last date
-        high_low = self.get_high_low(temps)
-        five_day.update({index: {"dow": prev_day, "high": high_low[0], "low": high_low[1]}})
-        index += 1
+        # # Handle last date
+        # high_low = self.get_high_low(temps)
+        # five_day.update({index: {"dow": prev_day, "high": high_low[0], "low": high_low[1]}})
+        # index += 1
 
-        ##############################
-        #  TIDE CONDITIONS
-        ##############################
+        # ##############################
+        # #  TIDE CONDITIONS
+        # ##############################
 
-        # Get tides                
-        response = requests.get(HA_API + "/states/sensor.tide", headers=headers, verify=False)
-        tide = response.json()["attributes"]
-        format = "%Y-%m-%dT%H:%M"
-        low_tide_time = datetime.datetime.strptime(tide["low_tide_time"], format)
-        high_tide_time = datetime.datetime.strptime(tide["high_tide_time"], format)
-        low_tide_height = round(tide["low_tide_height"], 1)
-        high_tide_height = round(tide["high_tide_height"], 1)
+        # # Get tides                
+        # response = requests.get(HA_API + "/states/sensor.tide", headers=headers, verify=False)
+        # tide = response.json()["attributes"]
+        # format = "%Y-%m-%dT%H:%M"
+        # low_tide_time = datetime.datetime.strptime(tide["low_tide_time"], format)
+        # high_tide_time = datetime.datetime.strptime(tide["high_tide_time"], format)
+        # low_tide_height = round(tide["low_tide_height"], 1)
+        # high_tide_height = round(tide["high_tide_height"], 1)
 
-        ltt = low_tide_time.strftime("%A @ %-I:%M %p")
-        htt = high_tide_time.strftime("%A @ %-I:%M %p")
+        # ltt = low_tide_time.strftime("%A @ %-I:%M %p")
+        # htt = high_tide_time.strftime("%A @ %-I:%M %p")
 
         ##############################
         #  SENSORS/DEVICE STATES
@@ -201,28 +201,28 @@ class Dashboard(tornado.web.RequestHandler):
         # Sensor state dictionary
         sensors = []
 
-        # Get motion status                
-        response = requests.get(HA_API + "/states/input_boolean.kitchen_motion", headers=headers, verify=False)
-        kitchen_motion = response.json()["state"]
-        sensors.append({ "name": "Kitchen Motion Sensor", "state": kitchen_motion, "icon": "motion-sensor"})
+        # # Get motion status                
+        # response = requests.get(HA_API + "/states/input_boolean.kitchen_motion", headers=headers, verify=False)
+        # kitchen_motion = response.json()["state"]
+        # sensors.append({ "name": "Kitchen Motion Sensor", "state": kitchen_motion, "icon": "motion-sensor"})
 
-        # Get patio light status                
-        response = requests.get(HA_API + "/states/switch.patio_lights", headers=headers, verify=False)
-        patio_light = response.json()["state"]    
-        sensors.append({ "name": "Patio Light", "state": patio_light, "icon": "string-lights"})
+        # # Get patio light status                
+        # response = requests.get(HA_API + "/states/switch.patio_lights", headers=headers, verify=False)
+        # patio_light = response.json()["state"]    
+        # sensors.append({ "name": "Patio Light", "state": patio_light, "icon": "string-lights"})
 
-        # Get door lock status                
-        response = requests.get(HA_API + "/states/binary_sensor.front_door_lock", headers=headers, verify=False)
-        front_door = response.json()["state"]         
-        sensors.append({ "name": "Front Door Lock", "state": front_door, "icon": "lock" })
+        # # Get door lock status                
+        # response = requests.get(HA_API + "/states/binary_sensor.front_door_lock", headers=headers, verify=False)
+        # front_door = response.json()["state"]         
+        # sensors.append({ "name": "Front Door Lock", "state": front_door, "icon": "lock" })
 
-        response = requests.get(HA_API + "/states/binary_sensor.back_door_lock", headers=headers, verify=False)
-        back_door = response.json()["state"]               
-        sensors.append({ "name": "Back Door Lock", "state": back_door, "icon": "lock" })
+        # response = requests.get(HA_API + "/states/binary_sensor.back_door_lock", headers=headers, verify=False)
+        # back_door = response.json()["state"]               
+        # sensors.append({ "name": "Back Door Lock", "state": back_door, "icon": "lock" })
 
-        response = requests.get(HA_API + "/states/climate.living_room", headers=headers, verify=False)
-        thermostat = str(response.json()["attributes"]["current_temperature"])
-        sensors.append({ "name": "Living Room Thermostat", "state": thermostat, "icon": "thermostat" })
+        # response = requests.get(HA_API + "/states/climate.living_room", headers=headers, verify=False)
+        # thermostat = str(response.json()["attributes"]["current_temperature"])
+        # sensors.append({ "name": "Living Room Thermostat", "state": thermostat, "icon": "thermostat" })
 
         ##############################
         #  RENDER DASHBOARD
@@ -233,14 +233,14 @@ class Dashboard(tornado.web.RequestHandler):
             title="Nook Dashboard", 
             items=items, 
             calendar=calendar, 
-            weather_state=weather_state, 
-            weather=weather, 
-            weather_icon=weather_icon, 
-            five_day=five_day, 
-            htt=htt, 
-            ltt=ltt, 
-            hth=high_tide_height, 
-            lth=low_tide_height, 
+            # weather_state=weather_state, 
+            # weather=weather, 
+            # weather_icon=weather_icon, 
+            # five_day=five_day, 
+            # htt=htt, 
+            # ltt=ltt, 
+            # hth=high_tide_height, 
+            # lth=low_tide_height, 
             sensors=sensors
         )
 
