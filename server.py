@@ -129,9 +129,11 @@ class Dashboard(tornado.web.RequestHandler):
         end = today + "T23:59:59.999Z"
 
         request = HA_API + "/calendars/" + CALENDAR + "?start=" + start + "&end=" + end
+        print("Headers: " + str(headers))
         print("Request: " + request)
 
         response = requests.get(request, headers=headers, verify=False)
+        print(response.status_code)
         calendar = response.json()  
 
         print(calendar)
