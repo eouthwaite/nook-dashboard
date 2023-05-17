@@ -111,6 +111,7 @@ class Dashboard(tornado.web.RequestHandler):
         ##############################
         #  TO DO LIST
         ##############################
+        print("GET TODO List")
 
         # Get to do list items
         res = cur.execute("SELECT ID, title, state FROM todo")
@@ -119,6 +120,7 @@ class Dashboard(tornado.web.RequestHandler):
         ##############################
         #  TODAYS EVENTS (FROM CALENDAR)
         ##############################
+        print("GET Calendar")
 
         # Get calendar
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -126,8 +128,13 @@ class Dashboard(tornado.web.RequestHandler):
         start = today + "T00:00:00.000Z"
         end = today + "T23:59:59.999Z"
 
-        response = requests.get(HA_API + "/calendars/" + CALENDAR + "?start="+start+"&end="+end, headers=headers, verify=False)
+        request = HA_API + "/calendars/" + CALENDAR + "?start=" + start + "&end=" + end
+        print("Request: " + request)
+
+        response = requests.get(request, headers=headers, verify=False)
         calendar = response.json()  
+
+        print(calendar)
 
         # ##############################
         # #  WEATHER
